@@ -1,0 +1,51 @@
+div.lambda-exp ol:before
+{
+	content: "(";
+}
+
+div.lambda-exp ol:after
+{
+	content: ")";
+}
+
+div.lambda-exp ol
+{
+	padding: 0px;
+	display: inline;
+}
+
+div.lambda-exp ol li
+{
+	display: inline;
+}
+
+div.lambda-exp dl
+{
+	display: inline;
+}
+
+div.lambda-exp dl dt:before
+{
+	content: "(\03BB";
+}
+
+div.lambda-exp dl dt:after
+{
+	content: ".";
+}
+
+div.lambda-exp dl dd:after
+{
+	content: ")";
+}
+
+div.lambda-exp dl dt
+{
+	display: inline;
+}
+
+div.lambda-exp dl dd
+{
+	margin: 0px;
+	display: inline;
+}

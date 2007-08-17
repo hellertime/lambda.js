@@ -1,0 +1,391 @@
+<html>
+	<head>
+		<title>Lambda Calculator - Prelude</title>
+		<link rel="stylesheet" type="text/css" href="css/lambda.css" />
+		<link rel="stylesheet" type="text/css" href="css/bnf.css" />
+	</head>
+	<body>
+		<strong>HTML-DOM &#955;-calculator</strong>
+		<pre>
+			The idea is to use HTML elements to represent &#955;-calculus expressions,
+			and the Javascript runtime to evaluate them.
+
+			This is not a very effecient or even practical means of implementation.
+			However it does allow for a nice display of the expressions, and even
+			some style.
+		</pre>
+
+		<p>
+			<em>A STRING is any valid Javascript String</em>
+		</p>
+
+		<strong>&#955;-calculus grammar</strong>
+		<span class="bnf-notation">
+				<dl>
+					<dt>&lt;expression&gt;</dt>
+					<dd>&lt;var&gt;</dd>
+					<dd>&lt;abstraction&gt;</dd>
+					<dd>&lt;application&gt;</dd>
+				</dl>
+				<dl>
+					<dt>&lt;var&gt;</dt>
+					<dd>STRING</dd>
+				</dl>
+				<dl>
+					<dt>&lt;abstraction&gt;</dt>
+					<dd>(&#955;&lt;var&gt;. &lt;expression&gt;)</dd>
+				</dl>
+				<dl>
+					<dt>&lt;application&gt;</dt>
+					<dd>(&lt;expression&gt; &lt;expression&gt;)</dd>
+				</dl>
+		</span>
+
+		<strong>&#955;-calculus HTML-DOM grammar</strong>
+		<span class="bnf-notation">
+				<dl>
+					<dt>&lt;expression&gt;</dt>
+					<dd>&lt;var&gt;</dd>
+					<dd>&lt;abstraction&gt;</dd>
+					<dd>&lt;application&gt;</dd>
+				</dl>
+				<dl>
+					<dt>&lt;var&gt;</dt>
+					<dd>&lt;VAR&gt;STRING&lt;/VAR&gt;</dd>
+				</dl>
+				<dl>
+					<dt>&lt;abstraction&gt;</dt>
+					<dd>&lt;DL&gt;&lt;DT&gt;&lt;var&gt;&lt;/DT&gt;&lt;DD&gt;&lt;expression&gt;&lt;/DD&gt;&lt;/DL&gt;</dd>
+				</dl>
+				<dl>
+					<dt>&lt;application&gt;</dt>
+					<dd>&lt;OL&gt;&lt;LI&gt;&lt;expression&gt;&lt;/LI&gt;&lt;LI&gt;&lt;expression&gt;&lt;/LI&gt;&lt;OL&gt;</dd>
+				</dl>
+		</span>
+
+		<strong>TRUE</strong>
+		<div id="TRUE" class="lambda-exp">
+			<dl>
+				<dt><var>x</var></dt>
+				<dd>
+					<dl>
+						<dt><var>y</var></dt>
+						<dd>
+							<var>x</var>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>FALSE</strong>
+		<div id="FALSE" class="lambda-exp">
+			<dl>
+				<dt><var>x</var></dt>
+				<dd>
+					<dl>
+						<dt><var>y</var></dt>
+						<dd>
+							<var>y</var>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>IF</strong>
+		<div id="IF" class="lambda-exp">
+			<dl>
+				<dt><var>predicate</var></dt>
+				<dd>
+					<dl>
+						<dt><var>consequent</var></dt>
+						<dd>
+							<dl>
+								<dt><var>alternative</var></dt>
+								<dd>
+									<ol>
+										<li>
+											<ol>
+												<li><var>predicate</var></li>
+												<li><var>consequent</var></li>
+											</ol>
+										</li>
+										<li><var>alternative</var></li>
+									</ol>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<pre>
+			Since the environment is the DOM, it makes sense that applications
+			can use variables which exist elsewhere.
+		</pre>
+
+		<strong>Testing variable expansion</strong><br />
+		<button onclick="prelude.compute_toplevel(document.getElementById('TRUE-test'))">Reduce</button>
+		<div id="TRUE-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li><var>TRUE</var></li>
+						<li><var>1</var></li>
+					</ol>
+				</li>
+				<li><var>-1</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('FALSE-test'))">Reduce</button>
+		<div id="FALSE-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li><var>FALSE</var></li>
+						<li><var>1</var></li>
+					</ol>
+				</li>
+				<li><var>-1</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('IF-test'))">Reduce</button>
+		<div id="IF-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li>
+							<ol>
+								<li><var>IF</var></li>
+								<li><var>TRUE</var></li>
+							</ol>
+						</li>
+						<li><var>Truth</var></li>
+					</ol>
+				</li>
+				<li><var>Fiction</var></li>
+			</ol>
+		</div>
+
+		<strong>Here is a test of the reduction algorithm</strong><br />
+		<button onclick="prelude.compute_toplevel(document.getElementById('lambda-calc')); return false">Reduce</button>
+		<div id="lambda-calc" class="lambda-exp">
+			<ol>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li>
+									<var>x</var>
+								</li>
+								<li>
+									<var>World</var>
+								</li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+				<li>
+					<var>Hello</var>
+				</li>
+			</ol>
+		</div>
+
+		<strong>Testing the free variable checkers</strong><br />
+		<button onclick="alert(prelude.occurs_free(document.getElementById('yy-test'),document.getElementById('yy-test-y')) == false)">Assert y is not free</button>
+		<div class="lambda-exp">
+			<ol>
+				<li>
+					<dl id="yy-test">
+						<dt><var>x</var>
+						<dd>
+							<dl>
+								<dt><var>y</var>
+								<dd>
+									<ol>
+										<li><var>x</var></li>
+										<li><var>y</var></li>
+									</ol>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</li>
+				<li><var id="yy-test-y">y</var></li>
+			</ol>
+		</div>
+		<button onclick="alert(prelude.occurs_bound(document.getElementById('yz-test'),document.getElementById('yz-test-y')) == false)">Assert z is free</button>
+		<div class="lambda-exp">
+			<ol>
+				<li>
+					<dl id="yz-test">
+						<dt><var>x</var>
+						<dd>
+							<dl>
+								<dt><var>y</var>
+								<dd>
+									<ol>
+										<li><var>x</var></li>
+										<li><var>y</var></li>
+									</ol>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</li>
+				<li><var id="yz-test-y">z</var></li>
+			</ol>
+		</div>
+		<strong>Testing reduction</strong><br />
+		<button onclick="prelude.compute_toplevel(document.getElementById('reduce-test-exp'))">Reduce</button>
+		<div id="reduce-test-exp" class="lambda-exp">
+			<ol>
+				<li>
+					<dl>
+						<dt><var>P</var>
+						<dd>
+							<ol>
+								<li><var>P</li>
+								<li><var>j</li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>Q</var></li>
+								<li><var>x</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('reduce-test-exp-2'))">Reduce</button>
+		<div id="reduce-test-exp-2" class="lambda-exp">
+			<ol>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>P</var></li>
+								<li><var>x</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+				<li><var>j</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('reduce-test-exp-3'))">Reduce</button>
+		<div id="reduce-test-exp-3" class="lambda-exp">
+			<ol>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+									<li>
+									<ol>
+										<li><var>K</var></li>
+										<li><var>x</var></li>
+									</ol>
+								</li>
+							<li><var>x</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+				<li><var>j</var></li>
+			</ol>
+		</div>
+
+		<strong>Testing &#945;-conversion</strong>
+		<button onclick="prelude.compute_toplevel(document.getElementById('alpha-reduction-test'))">Reduce</button>
+		<div id="alpha-reduction-test" class="lambda-exp">
+			<ol>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>x</var></li>
+								<li><var>x</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<dl>
+								<dt><var>y</var></dt>
+								<dd>
+									<ol>
+										<li><var>x</var></li>
+										<li><var>y</var></li>
+									</ol>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</li>
+			</ol>
+		</div>
+
+		<strong>Normal-order test, should reduce to 7... strict eval would never reduce</strong>
+		<button onclick="prelude.compute_toplevel(document.getElementById('normal-order-test'))">Reduce</button>
+		<div id="normal-order-test" class="lambda-exp">
+			<ol>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<var>7</var>
+						</dd>
+					</dl>
+				</li>
+				<li>
+					<ol>
+						<li>
+							<dl>
+								<dt><var>y</var></dt>
+								<dd>
+									<ol>
+										<li><var>y</var></li>
+										<li><var>y</var></li>
+									</ol>
+								</dd>
+							</dl>
+						</li>
+						<li>
+							<dl>
+								<dt><var>y</var></dt>
+								<dd>
+									<ol>
+										<li><var>y</var></li>
+										<li><var>y</var></li>
+									</ol>
+								</dd>
+							</dl>
+						</li>
+					</ol>
+				</li>
+			</ol>
+		</div>
+
+		<script src="js/lambda.js" type="text/javascript"></script>
+	</body>
+</html>
