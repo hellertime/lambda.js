@@ -192,7 +192,6 @@ function ()
 	function (term,expression,to)
 	{
 		var lambda = this;	
-		console.log("Start sub");
 		this.tree_map(expression, function (node)
 		{
 			if(lambda.var_p(node) && lambda.same_var_p(term,node))
@@ -222,7 +221,6 @@ function ()
 	{
 		if(!this.var_p(x))
 		{
-			console.log("Can only test free-ness of variables.");
 			return false;
 		}
 
@@ -247,7 +245,6 @@ function ()
 	{
 		if(!this.var_p(x))
 		{
-			console.log("Can only test bound-ness of variables.");
 			return false;
 		}
 

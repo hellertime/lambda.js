@@ -121,6 +121,70 @@
 			</dl>
 		</div>
 
+		<strong>AND</strong>
+		<div id="AND" class="lambda-exp">
+			<dl>
+				<dt><var>p</var></dt>
+				<dd>
+					<dl>
+						<dt><var>q</var></dt>
+						<dd>
+							<ol>
+								<li>
+									<ol>
+										<li><var>p</var></li>
+										<li><var>q</var></li>
+									</ol>
+								</li>
+								<li><var>FALSE</var>
+							</ol>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>OR</strong>
+		<div id="OR" class="lambda-exp">
+			<dl>
+				<dt><var>p</var></dt>
+				<dd>
+					<dl>
+						<dt><var>q</var></dt>
+						<dd>
+							<ol>
+							<li>
+								<ol>
+									<li><var>p</var></li>
+									<li><var>TRUE</var></li>
+								</ol>
+							</li>
+							<li><var>q</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>NOT</strong>
+		<div id="NOT" class="lambda-exp">
+			<dl>
+				<dt><var>p</dt>
+				<dd>
+					<ol>
+						<li>
+							<ol>
+								<li><var>p</var></li>
+								<li><var>FALSE</var></li>
+							</ol>
+						</li>
+						<li><var>TRUE</var></li>
+					</ol>
+				</dd>
+			</dl>
+		</div>
+
 		<pre>
 			Since the environment is the DOM, it makes sense that applications
 			can use variables which exist elsewhere.
@@ -168,6 +232,40 @@
 					</ol>
 				</li>
 				<li><var>Fiction</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('AND-test'))">Reduce</button>
+		<div id="AND-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li><var>AND</var></li>
+						<li><var>TRUE</var></li>
+					</ol>
+				</li>
+				<li><var>FALSE</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('OR-test'))">Reduce</button>
+		<div id="OR-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li><var>OR</var></li>
+						<li><var>FALSE</var></li>
+					</ol>
+				</li>
+				<li><var>TRUE</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('NOT-test'))">Reduce</button>
+		<div id="NOT-test" class="lambda-exp">
+			<ol>
+				<li><var>NOT</var></li>
+				<li><var>FALSE</var></li>
 			</ol>
 		</div>
 
@@ -342,6 +440,35 @@
 						</dd>
 					</dl>
 				</li>
+			</ol>
+		</div>
+
+		<strong>Another &#945;-conversion test</strong>
+		<button onclick="prelude.compute_toplevel(document.getElementById('alpha-reduction-test-2'))">Reduce</button>
+		<div id="alpha-reduction-test-2" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li>
+							<dl>
+								<dt><var>a</var></dt>
+								<dd>
+									<dl>
+										<dt><var>b</var></dt>
+										<dd>
+											<ol>
+												<li><var>b</var></li>
+												<li><var>a</var></li>
+											</ol>
+										</dd>
+									</dl>
+								</dd>
+							</dl>
+						</li>
+						<li><var>b</var></li>
+					</ol>
+				</li>
+				<li><var>a</var></li>
 			</ol>
 		</div>
 
