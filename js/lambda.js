@@ -250,7 +250,7 @@ function ()
 
 		if(this.var_p(expression))
 		{
-			console.log("No variable occurs bound in an expression consisting of a single variable or constant.");
+			// console.log("No variable occurs bound in an expression consisting of a single variable or constant.");
 			return false;
 		}
 
@@ -309,7 +309,8 @@ function ()
 		var redex = null;
 		if(this.application_p(node))
 		{
-			var head = this.application_head(node);
+			var head = this.application_head(node),
+					tail = this.application_tail(node);
 			if(this.abstraction_p(head))
 			{
 				redex = node;
@@ -322,13 +323,18 @@ function ()
 					this.substitute_term_in_expression(head,node,expansion);
 					redex = node;
 				}
+
+				if(this.application_p(tail) || this.abstraction_p(tail))
+				{
+					redex = this.find_next_redex(tail,environment);
+				}
 			}
 			else
 			{
 				redex = this.find_next_redex(head,environment);
 				if(!redex)
 				{
-					redex = this.find_next_redex(this.application_tail(node),environment);
+					redex = this.find_next_redex(tail,environment);
 				}
 			}
 		}
@@ -347,6 +353,30 @@ function ()
 		{
 			var abstraction = this.application_head(redex),
 					subst_term = this.application_tail(redex);
+
+			var expanded_var = null;
+			if(this.var_p(abstraction))
+			{
+				expanded_var = this.expand_var(abstraction,env);
+				if(this.var_p(expanded_var))
+				{
+					if(expanded_var === abstraction)
+					{
+						return null;
+					}
+
+					while(this.var_p(expanded_var))
+					{
+						abstraction = expanded_var;
+						expanded_var = this.expand_var(expanded_var,env);
+						if(abstraction === expanded_var)
+						{
+							return null;
+						}
+					}
+				}
+				abstraction = expanded_var;
+			}
 
 			while(this.occurs_bound(abstraction,subst_term))
 			{

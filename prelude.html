@@ -185,10 +185,211 @@
 			</dl>
 		</div>
 
+		<h4>Church Numerals</h4>
+
+		<pre>
+			SUCC allows us to define any number once we have 0.
+		</pre>
+
+		<strong>SUCC</strong>
+		<div id="SUCC" class="lambda-exp">
+			<dl>
+				<dt><var>n</var>
+				<dd>
+					<dl>
+						<dt><var>f</var></dt>
+						<dd>
+							<dl>
+								<dt><var>x</var></dt>
+								<dd>
+									<ol>
+										<li><var>f</var></li>
+										<li>
+											<ol>
+												<li>
+													<ol>
+														<li><var>n</var></li>
+														<li><var>f</var></li>
+													</ol>
+												</li>
+												<li><var>x</var></li>
+											</ol>
+										</li>
+									</ol>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<pre>
+			Most examples only define ZERO - THREE in church numerals,
+			and since each numeral is just SUCC applied to the previous
+			one there is really no need to define more (really ZERO and
+			SUCC should be all we need)
+
+			But since its slow to have to compute ONE each time we need it,
+			a few are defined here just for example.
+		</pre>
+
+		<strong>ZERO</strong>
+		<em>It's &lt;FALSE&gt;, Surprise!</em>
+		<div id="ZERO" class="lambda-exp">
+			<var>FALSE</var>
+		</div>
+
+		<strong>ONE</strong>
+		<div id="ONE" class="lambda-exp">
+			<dl>
+				<dt><var>f</var></dt>
+				<dd>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>f</var></li>
+								<li><var>x</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>TWO</strong>
+		<div id="TWO" class="lambda-exp">
+			<dl>
+				<dt><var>f</var></dt>
+				<dd>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>f</var></li>
+								<li>
+									<ol>
+										<li><var>f</var></li>
+										<li><var>x</var></li>
+									</ol>
+								</li>
+							</ol>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>THREE</strong>
+		<div id="THREE" class="lambda-exp">
+			<dl>
+				<dt><var>f</var></dt>
+				<dd>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>f</var></li>
+								<li>
+									<ol>
+										<li><var>f</var></li>
+										<li>
+											<ol>
+												<li><var>f</var></li>
+												<li><var>x</var></li>
+											</ol>
+										</li>
+									</ol>
+								</li>
+							</ol>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<pre>
+			What good are numbers if you can't add them?
+		</pre>
+
+		<strong>PLUS</strong>
+		<div id="PLUS" class="lambda-exp">
+			<dl>
+				<dt><var>m</var></dt>
+				<dd>
+					<dl>
+						<dt><var>n</var></dt>
+						<dd>
+							<dl>
+								<dt><var>f</var></dt>
+								<dd>
+									<dl>
+										<dt><var>x</var></dt>
+										<dd>
+											<ol>
+												<li><var>n</var></li>
+												<li>
+													<ol>
+														<li><var>f</var></li>
+														<li>
+															<ol>
+																<li>
+																	<ol>
+																		<li><var>m</var></li>
+																		<li><var>f</var></li>
+																	</ol>
+																</li>
+																<li><var>x</var>
+															</ol>
+														</li>
+													</ol>
+												</li>
+											</ol>
+										</dd>
+									</dl>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
 		<pre>
 			Since the environment is the DOM, it makes sense that applications
 			can use variables which exist elsewhere.
 		</pre>
+
+		<strong>Sanity Check our Number System</strong><br />
+		<button onclick="prelude.compute_toplevel(document.getElementById('SUCC-ZERO-test'))">Reduce</button>
+		<div id="SUCC-ZERO-test" class="lambda-exp">
+			<ol>
+				<li><var>SUCC</var></li>
+				<li><var>ZERO</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('SUCC-TWO-test'))">Reduce</button>
+		<div id="SUCC-TWO-test" class="lambda-exp">
+			<ol>
+				<li><var>SUCC</var></li>
+				<li><var>TWO</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('PLUS-test'))">Reduce</button>
+		<div id="PLUS-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li><var>PLUS</var></li>
+						<li><var>TWO</var></li>
+					</ol>
+				</li>
+				<li><var>THREE</var></li>
+			</ol>
+		</div>
 
 		<strong>Testing variable expansion</strong><br />
 		<button onclick="prelude.compute_toplevel(document.getElementById('TRUE-test'))">Reduce</button>
