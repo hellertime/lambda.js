@@ -3,9 +3,10 @@
 		<title>Lambda Calculator - Prelude</title>
 		<link rel="stylesheet" type="text/css" href="css/lambda.css" />
 		<link rel="stylesheet" type="text/css" href="css/bnf.css" />
+		<link rel="reference" type="text/html" href="http://www.cs.bgu.ac.il/~elhadad/advpro/course4.html" />
 	</head>
 	<body>
-		<strong>HTML-DOM &#955;-calculator</strong>
+		<h3>HTML-DOM &#955;-calculator</h3>
 		<pre>
 			The idea is to use HTML elements to represent &#955;-calculus expressions,
 			and the Javascript runtime to evaluate them.
@@ -62,6 +63,38 @@
 					<dd>&lt;OL&gt;&lt;LI&gt;&lt;expression&gt;&lt;/LI&gt;&lt;LI&gt;&lt;expression&gt;&lt;/LI&gt;&lt;OL&gt;</dd>
 				</dl>
 		</span>
+
+		<strong>&#955;-calculus axioms</strong>
+		<pre>
+			Evaluation in &#955;-calculus is defined by three simple reduction rules:
+
+			1. &#945;-conversion
+			2. &#946;-reduction
+			3. &#951;-reduction
+
+			&#945;-conversion can be defined semi-formally as:
+			E[x&#8242;/x] &#8594; E&#8242; &#8801; E &#8743; x&#8242; &#8712; FV(E)
+
+			Which means in expression E, x can be rewritten as x&#8242; yeilding
+			an equivalent expression E&#8242; with the condition that x&#8242; is not bound in E 
+			(FV is a function which returns the set of free-variables in its argument)
+
+			&#946;-reduction can be defined semi-formally as:
+			(E1 E2) &#8594; E1[E2/x] &#8594; E&#8242;
+
+			Which means that in the application (E1 E2), E2 can be substituted
+			for the formal parameter <em>x</em> in E1 to yeild a new expression E&#8242;
+
+			&#951;-reduction can be defined semi-formally as:
+			&#955;x. (E x) &#8594; E &#8743; x &#8713; FV(E)
+
+			Which means that if the body of a &#955;-abstraction is the application
+			of another expression to the formal argument, and the formal argument
+			does not a free variable in E than you can simply reduce the expression
+			to E.
+		</pre>
+
+		<h3>&#955;-calculus environment</h3>
 
 		<strong>TRUE</strong>
 		<div id="TRUE" class="lambda-exp">
@@ -361,6 +394,8 @@
 			can use variables which exist elsewhere.
 		</pre>
 
+		<h3>&#955;-calculus expression</h3>
+
 		<strong>Sanity Check our Number System</strong><br />
 		<button onclick="prelude.compute_toplevel(document.getElementById('SUCC-ZERO-test'))">Reduce</button>
 		<div id="SUCC-ZERO-test" class="lambda-exp">
@@ -470,6 +505,14 @@
 			</ol>
 		</div>
 
+		<button onclick="prelude.compute_toplevel(document.getElementById('FALSE-FALSE-test'))">Reduce</button>
+		<div id="FALSE-FALSE-test" class="lambda-exp">
+			<ol>
+				<li><var>FALSE</var></li>
+				<li><var>FALSE</var></li>
+			</ol>
+		</div>
+
 		<strong>Here is a test of the reduction algorithm</strong><br />
 		<button onclick="prelude.compute_toplevel(document.getElementById('lambda-calc')); return false">Reduce</button>
 		<div id="lambda-calc" class="lambda-exp">
@@ -540,8 +583,28 @@
 				<li><var id="yz-test-y">z</var></li>
 			</ol>
 		</div>
+
+		<strong>Test FV</strong>
+		<button onclick="console.log(prelude.FV(document.getElementById('fv-test-abx')))">Reveal FV set (<em>requires FireBug enabled</em>)</button>
+		<div class="lambda-exp">
+			<dl id="fv-test-abx">
+				<dt><var>x</var></dt>
+				<dd>
+					<ol>
+						<li><var>x</var></li>
+						<li>
+							<ol>
+								<li><var>y</var></li>
+								<li><var>z</var></li>
+							</ol>
+						</li>
+					</ol>
+				</dd>
+			</dl>
+		</div>
+
 		<strong>Testing reduction</strong><br />
-		<button onclick="prelude.compute_toplevel(document.getElementById('reduce-test-exp'))">Reduce</button>
+		<button onclick="prelude.compute_toplevel_x(document.getElementById('reduce-test-exp'))">Reduce</button>
 		<div id="reduce-test-exp" class="lambda-exp">
 			<ol>
 				<li>
@@ -607,6 +670,29 @@
 					</dl>
 				</li>
 				<li><var>j</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('reduce-test-exp-4'))">Reduce</button>
+		<div id="reduce-test-exp-4" class="lambda-exp">
+			<ol>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>x</var></li>
+								<li><var>y</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+				<li>
+					<dl>
+						<dt><var>z</var></dt>
+						<dd><var>z</var></dd>
+					</dl>
+				</li>
 			</ol>
 		</div>
 
@@ -714,6 +800,21 @@
 			</ol>
 		</div>
 
+		<strong>&#951;-conversion test</strong>
+		<button onclick="prelude.abstraction_eta_reduction(prelude.first_element_token(document.getElementById('eta-test')))">Reduce</button>
+		<div id="eta-test" class="lambda-exp">
+			<dl>
+				<dt><var>x</var></dt>
+				<dd>
+					<ol>
+						<li><var>square</var></li>
+						<li><var>x</var></li>
+					</ol>
+				</dd>
+			</dl>
+		</div>
+
+		<!-- bring in the lambda-calculator machinery -->
 		<script src="js/lambda.js" type="text/javascript"></script>
 	</body>
 </html>
