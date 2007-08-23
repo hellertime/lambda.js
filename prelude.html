@@ -203,7 +203,7 @@
 		<strong>NOT</strong>
 		<div id="NOT" class="lambda-exp">
 			<dl>
-				<dt><var>p</dt>
+				<dt><var>p</var></dt>
 				<dd>
 					<ol>
 						<li>
@@ -361,21 +361,21 @@
 										<dt><var>x</var></dt>
 										<dd>
 											<ol>
-												<li><var>n</var></li>
 												<li>
 													<ol>
+														<li><var>m</var></li>
 														<li><var>f</var></li>
+													</ol>
+												</li>
+												<li>
+													<ol>
 														<li>
 															<ol>
-																<li>
-																	<ol>
-																		<li><var>m</var></li>
-																		<li><var>f</var></li>
-																	</ol>
-																</li>
-																<li><var>x</var>
+																<li><var>n</var></li>
+																<li><var>f</var></li>
 															</ol>
 														</li>
+														<li><var>x</var></li>
 													</ol>
 												</li>
 											</ol>
@@ -604,7 +604,7 @@
 		</div>
 
 		<strong>Testing reduction</strong><br />
-		<button onclick="prelude.compute_toplevel_x(document.getElementById('reduce-test-exp'))">Reduce</button>
+		<button onclick="prelude.compute_toplevel(document.getElementById('reduce-test-exp'))">Reduce</button>
 		<div id="reduce-test-exp" class="lambda-exp">
 			<ol>
 				<li>
@@ -801,17 +801,22 @@
 		</div>
 
 		<strong>&#951;-conversion test</strong>
-		<button onclick="prelude.abstraction_eta_reduction(prelude.first_element_token(document.getElementById('eta-test')))">Reduce</button>
+		<button onclick="prelude.compute_toplevel(document.getElementById('eta-test'))">Reduce</button>
 		<div id="eta-test" class="lambda-exp">
-			<dl>
-				<dt><var>x</var></dt>
-				<dd>
-					<ol>
-						<li><var>square</var></li>
-						<li><var>x</var></li>
-					</ol>
-				</dd>
-			</dl>
+			<ol>
+				<li>
+					<dl>
+						<dt><var>x</var></dt>
+						<dd>
+							<ol>
+								<li><var>square</var></li>
+								<li><var>x</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</li>
+				<li><var>2</var></li>
+			</ol>
 		</div>
 
 		<!-- bring in the lambda-calculator machinery -->

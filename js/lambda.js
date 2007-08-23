@@ -25,7 +25,7 @@ function ()
 		}
 		else if(this.application_p(exp))
 		{
-			x = x + "(" + this.expression_to_string(this.application_head(exp)) + " " + this.expression_to_string(this.application_tail(exp)) + ")";
+			x = x + "(" + this.expression_to_string(this.application_rator(exp)) + " " + this.expression_to_string(this.application_rand(exp)) + ")";
 		}
 
 		return x;
@@ -97,6 +97,7 @@ function ()
 		return true;
 	}
 
+	// returns a new copy of the expanded var from the environment
 	this.expand_var =
 	function (v,environment)
 	{
@@ -104,7 +105,7 @@ function ()
 
 		if(expansion)
 		{
-			return this.first_element_token(expansion);
+			return this.first_element_token(expansion).cloneNode(true);
 		}
 
 		return v;
@@ -160,21 +161,21 @@ function ()
 		return this.first_element_token(this.next_element_token(this.first_element_token(node)));
 	}
 
-	this.abstraction_eta_reduction =
-	function (abstraction)
+	// return a new abstraction from the DOM
+	this.new_abstraction =
+	function (v,E)
 	{
-		var term = this.abstraction_term(abstraction),
-				body = this.abstraction_body(abstraction);
+		var abx = document.createElement("DL"),
+				term = document.createElement("DT"),
+				body = document.createElement("DD");
 
-		if(this.application_p(body))
-		{
-			if(!this.occurs_free(this.application_head(body),term) && this.same_var_p(term,this.application_tail(body)))
-			{
-				return this.application_head(body);
-			}
-		}
+		abx.appendChild(term);
+		abx.appendChild(body);
 
-		return abstraction;
+		term.appendChild(v);
+		body.appendChild(E);
+
+		return abx;
 	}
 
 	// lambda application (function application) predicate
@@ -218,6 +219,22 @@ function ()
 	function (node)
 	{
 		return this.first_element_token(this.next_element_token(this.first_element_token(node)));
+	}
+
+	// construct a new application from the DOM
+	this.new_application =
+	function (rator,rand)
+	{
+		var app = document.createElement("OL"),
+				N = document.createElement("LI"),
+				M = document.createElement("LI");
+
+		app.appendChild(N);
+		app.appendChild(M);
+		N.appendChild(rator);
+		M.appendChild(rand);
+
+		return app;
 	}
 
 	this.tree_map =
@@ -336,248 +353,246 @@ function ()
 		return false;
 	}
 
-	this.compute_toplevel_x =
-	function (toplevel)
+	// returns true if the expression can be reduced
+	this.has_beta_redex_p =
+	function (expression,environment)
 	{
-		var inner_node = this.first_element_token(toplevel);
-
-		while(inner_node)
+		if(this.application_p(expression))
 		{
-			var keep_reducing = true;	
-			var redex = null;
-			while(keep_reducing) 
-			{
-				if(redex === null)
-				{
-					redex = this.find_next_redex(inner_node,document);
-					if(!redex || !inner_node.parentNode)
-					{
-						keep_reducing = false;
-					}
-				}
-				else
-				{
-					if(redex = this.reduce(redex,document)) 
-					{
-						if(redex.parentNode)
-						{
-							redex = this.find_next_redex(redex,document);
-						}
-						else
-						{
-							redex = null;
-						}
-					}
-				}
-			}
-			inner_node = this.next_element_token(inner_node);
-		}
-	}
+			var rator = this.application_rator(expression),
+					rand  = this.application_rand(expression);
 
-	this.find_next_redex =
-	function (node, environment)
-	{
-		var redex = null;
-		if(this.application_p(node))
-		{
-			var rator = this.application_rator(node),
-					rand = this.application_rand(node);
-			if(this.abstraction_p(rator))
-			{
-				redex = node;
-			}
-			else if(this.var_p(rator))
-			{
-				var expansion = this.expand_var(rator,environment);
-				if(rator !== expansion)
-				{
-					this.substitute_term_in_expression(rator,node,expansion);
-					redex = node;
-				}
-
-				if(this.application_p(rand) || this.abstraction_p(rand))
-				{
-					redex = this.find_next_redex(rand,environment);
-				}
-			}
-			else
-			{
-				redex = this.find_next_redex(rator,environment);
-				if(!redex)
-				{
-					redex = this.find_next_redex(rand,environment);
-				}
-			}
-		}
-		else if(this.abstraction_p(node))
-		{
-			redex = this.find_next_redex(this.abstraction_body(node),environment);
-		}
-
-		return redex;
-	}
-
-	this.reduce =
-	function (redex, env)
-	{
-		if(redex)
-		{
-			var abstraction = this.application_head(redex),
-					subst_term = this.application_tail(redex);
-
-			var expanded_var = null;
-			if(this.var_p(abstraction))
-			{
-				expanded_var = this.expand_var(abstraction,env);
-				if(this.var_p(expanded_var))
-				{
-					if(expanded_var === abstraction)
-					{
-						return null;
-					}
-
-					while(this.var_p(expanded_var))
-					{
-						abstraction = expanded_var;
-						expanded_var = this.expand_var(expanded_var,env);
-						if(abstraction === expanded_var)
-						{
-							return null;
-						}
-					}
-				}
-				abstraction = expanded_var;
-			}
-
-			while(this.occurs_bound(abstraction,subst_term))
-			{
-				if(!this.prime_rewrite_var(subst_term))
-				{
-					return null;
-				}
-			}
-
-			var lambda_term = this.abstraction_term(abstraction),
-					lambda_body = this.abstraction_body(abstraction),
-					new_body = lambda_body.cloneNode(true);
-
-			this.substitute_term_in_expression(lambda_term,new_body,subst_term);
-
-			redex.parentNode.replaceChild(new_body,redex);
-
-			redex = null;
-			subst_term = null;
-			return new_body;
-		}
-	}
-
-	this.reduce_application =
-	function (app, env)
-	{
-		var rator = this.application_rator(app),
-				rand = this.application_rand(app);
-
-		if(this.var_p(rator))
-		{
-			var v = null;
-			if((v = this.expand_var(rator,env)) !== rator)
-			{
-				console.log("Expanded " + this.expression_to_string(rator) + " ==> " + this.expression_to_string(v));
-				rator.parentNode.replaceChild(v.cloneNode(true),rator);
-				return true;
-			}
-			else
-			{
-				console.log("Cannot reduce application further.");
-				return false;
-			}
-		}
-		else if(this.abstraction_p(rator))
-		{
-			while(this.occurs_bound(rator,rand))
-			{
-				this.prime_rewrite_var(rand);
-			}
-			this.substitute_term_in_expression(this.abstraction_term(rator),this.abstraction_body(rator),rand);
-			var new_node = this.abstraction_body(rator);
-			app.parentNode.replaceChild(new_node,app);
-			return true;
-		}
-		else if(this.application_p(rator))
-		{
-			console.log("Think its an app: " + this.expression_to_string(rator));
-			return this.reduce_application(rator,env);
-		}
-		else
-		{
-			console.log("Called reduce-app on non-app: " + this.expression_to_string(app));
-			return false;
-		}
-	}
-
-	this.compute_toplevel =
-	function (toplevel)
-	{
-		this.reduce_x(toplevel,document);
-	}
-
-	this.redex_p =
-	function (exp, env)
-	{
-		if(this.application_p(exp))
-		{
-			var rator = this.application_rator(exp);
-
-			if(this.abstraction_p(rator))
+			if(this.abstraction_p(rator) || this.expand_var_p(rator,environment))
 			{
 				return true;
 			}
+
+			return (this.has_beta_redex_p(rator,environment) || this.has_beta_redex_p(rand,environment));
+		}
+		else if(this.abstraction_p(expression))
+		{
+			return this.has_beta_redex_p(this.abstraction_body(expression),environment);
 		}
 		return false;
 	}
 
-	this.reduce_redex =
-	function (redex, env)
+	// returns reference to the first redex in expression under normal-order terms
+	this.normal_order_redex =
+	function (expression,environment)
 	{
-		var rator = this.application_rator(redex),
-				rand = this.application_rand(redex);
-
-		// safe to eta-reduce first since eta-reduction simply lifts
-		// the inner expression returning it, or the original expression
-		rator = this.abstraction_eta_reduction(rator);
-	}
-
-	this.reduce_y =
-	function (exp, env)
-	{
-		if(this.redex_p(this.first_element_token(exp),env))
+		if(this.application_p(expression))
 		{
-				
-		}
-	}
+			var rator = this.application_rator(expression),
+					rand  = this.application_rand(expression);
 
-	this.reduce_x =
-	function (exp, env)
-	{
-		console.log("Reducing: " + this.expression_to_string(this.first_element_token(exp)));
-		if(this.application_p(this.first_element_token(exp)))
-		{
-			while(this.reduce_application(this.first_element_token(exp),env))
+			if(this.abstraction_p(rator) || this.expand_var_p(rator,environment))
 			{
-				true;
+				return expression;
+			}
+
+			return (this.normal_order_redex(rator,environment) || this.normal_order_redex(rand,environment))
+		}
+		else if(this.abstraction_p(expression))
+		{
+			return this.normal_order_redex(this.abstraction_body(expression),environment);
+		}
+		return null;
+	}
+
+	// alpha-conversion: \x . x -> \y . y
+	this.alpha_convert =
+	function (expression,from,to)
+	{
+		if(this.same_var_p(expression,from))
+		{
+			// no need to replace, just swap content
+			expression.textContent = to.textContent;
+		}
+		else if(this.abstraction_p(expression))
+		{
+			var term = this.abstraction_term(expression);
+			if(this.same_var_p(term,from))
+			{
+				term.textContent = to.textContent;
+				this.alpha_convert(this.abstraction_body(expression),from,to);
 			}
 		}
-		else if(this.abstraction_p(this.fisrt_element_token(exp)))
+		else if(this.application_p(expression))
 		{
-			console.log("Backtracking on: " + this.expression_to_string(this.first_element_token(exp)));
-			this.reduce_x(exp,env);
-			console.log("Exp after abx: " + this.expression_to_string(this.first_element_token(exp)));
-		}
-		else
-		{
-			console.log("Halted reduction on: " + this.expression_to_string(this.first_element_token(exp)));
+			this.alpha_convert(this.application_rator(expression),from,to);
+			this.alpha_convert(this.application_rand(expression),from,to);
 		}
 	}
+
+	// eta-reduction: \x. E x -> E <-> FV(E) \ {x}
+	this.eta_reduce =
+	function (expression,environment)
+	{
+		if(this.abstraction_p(expression))
+		{
+			var term = this.application_rator(expression),
+					body  = this.application_rand(expression);
+
+			if(this.application_p(body))
+			{
+				var rator = this.application_rator(body),
+						rand  = this.application_rand(body),
+						free_vars = this.FV(rator);
+				if(this.same_var_p(term,rand) && !(rand.textContent in free_vars))
+				{
+					console.log("eta-reduction: " + this.expression_to_string(rator));
+					expression.parentNode.replaceChild(rator,expression);
+					return rator;
+				}
+			}
+		}
+		return null;
+	}
+
+	this.beta_reduce =
+	function (redex,environment)
+	{
+		var rator = this.application_rator(redex),
+				rand  = this.application_rand(redex);
+
+		if(!this.abstraction_p(rator)) //{ return null; }
+		{
+			var new_rator = this.expand_var(rator,environment);
+			if(new_rator === rator)
+			{
+				return null;
+			}
+			else
+			{
+				rator.parentNode.replaceChild(new_rator.cloneNode(true),rator);
+				return new_rator;
+			}
+		}
+
+		var term = this.abstraction_term(rator),
+				body = this.abstraction_body(rator),
+				lambda = this,
+				substitution = function (E, v, M)
+				{
+					var sub_str = lambda.expression_to_string(E) + "[" + lambda.expression_to_string(v) + " -> " + lambda.expression_to_string(M) + "]";
+					if(lambda.var_p(E))
+					{
+						if(lambda.same_var_p(E,v))
+						{
+							console.log("  substitution rule a: " + sub_str);
+							var M = M.cloneNode(true);
+							console.log("  a) ==> " + lambda.expression_to_string(M));
+							return M;
+						}
+						else
+						{
+							console.log("  substitution rule b: " + sub_str);
+							var E = E.cloneNode(true);
+							console.log("  b) ==> " + lambda.expression_to_string(E));
+							return E;
+						}
+					}
+					else if(lambda.application_p(E))
+					{
+						console.log("  substitution rule d: " + sub_str);
+						var app = lambda.new_application(substitution(lambda.application_rator(E),v,M),substitution(lambda.application_rand(E),v,M));
+						console.log("  d) ==> " + lambda.expression_to_string(app));
+						return app;
+					}
+					else if(lambda.abstraction_p(E))
+					{
+						var x = lambda.abstraction_term(E),
+								e = lambda.abstraction_body(E),
+						    FV_e = lambda.FV(e);
+
+						if(!(v.textContent in FV_e))
+						{
+							console.log("  substitution rule e: " + sub_str);
+							console.log("  e) ==> " + lambda.expression_to_string(E));
+							return E;
+						}
+						else if(! lambda.same_var_p(v,x))
+						{
+							var FV_M = lambda.FV(M);
+
+							if(!(x.textContent in FV_M))
+							{
+								console.log("  substitution rule f: " + sub_str);
+								var abx = lambda.new_abstraction(x,substitution(e,v,M));
+								console.log("  f) ==> " + lambda.expression_to_string(abx));
+								return abx;
+							}
+							else
+							{
+								var z = x.cloneNode(true);   // z == v
+								while(lambda.same_var_p(z,x) || (z.textContent in FV_e || z.textContent in FV_M))
+								{
+									lambda.prime_rewrite_var(z);
+								}
+								// z != v ^ z not in FV(E E1)
+								console.log("  substitution rule g: " + sub_str);
+								console.log("    alpha ==< " + lambda.expression_to_string(E));
+								lambda.alpha_convert(E,x.cloneNode(true),z);
+								console.log("    alpha ==> " + lambda.expression_to_string(E));
+								var abx = lambda.new_abstraction(z,substitution(e,v,M));
+								console.log("  g) ==> " + lambda.expression_to_string(abx));
+								return abx;
+							}
+						}
+					}
+				};
+
+			console.log("beta-reduction: " + lambda.expression_to_string(rator) + "[" + lambda.expression_to_string(term) + " -> " + lambda.expression_to_string(rand) + "]");
+			var sub = substitution(body,term,rand);
+			console.log("==> " + this.expression_to_string(sub));
+			redex.parentNode.replaceChild(sub,redex);
+			return sub;
+	}
+
+	// apply lambda reduction rules to the redex
+	// and return the new expression
+	this.reduce =
+	function (redex,environment)
+	{
+		if(!redex) { return null; } // filter out nulls
+
+		var rator = this.application_rator(redex),
+				rand  = this.application_rand(redex);
+
+		// 1. before doing a substitution see if we can eta-reduce the rator
+		//    If we can return the reduced rator to the caller
+		return (this.eta_reduce(rator,environment) ||	this.beta_reduce(redex,environment));
+	}
+
+	// iterates over the element_tokens in the toplevel, reducing expressions
+	this.compute_toplevel =
+	function (toplevel)
+	{
+		var token = this.first_element_token(toplevel);
+		while(token)
+		{
+			// find an element we can reduce on
+			while(token && !this.has_beta_redex_p(token,document))
+			{
+				token = this.next_element_token(token);
+			}
+
+			// search failed, we're done
+			if(!token)
+			{
+				break;
+			}
+
+			this.reduce(this.normal_order_redex(token,document),document);
+
+			// if we lost our initial node, grab the first one
+			if(!token || !token.parentNode)
+			{
+				token = this.first_element_token(toplevel);
+			}
+		}
+	}
+
 };
 
 var prelude = new lambda();
