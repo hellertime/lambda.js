@@ -252,7 +252,6 @@ function ()
 	this.substitute_term_in_expression =
 	function (term,expression,to)
 	{
-		console.log("B: " + this.expression_to_string(expression) + "[" + this.expression_to_string(to) + "/" + this.expression_to_string(term) + "]");
 		var lambda = this;	
 		this.tree_map(expression, function (node)
 		{
@@ -440,13 +439,12 @@ function ()
 						free_vars = this.FV(rator);
 				if(this.same_var_p(term,rand) && !(rand.textContent in free_vars))
 				{
-					console.log("eta-reduction: " + this.expression_to_string(rator));
 					expression.parentNode.replaceChild(rator,expression);
-					return rator;
+					return true;
 				}
 			}
 		}
-		return null;
+		return false;
 	}
 
 	this.beta_reduce =
@@ -458,15 +456,11 @@ function ()
 		if(!this.abstraction_p(rator)) //{ return null; }
 		{
 			var new_rator = this.expand_var(rator,environment);
-			if(new_rator === rator)
-			{
-				return null;
-			}
-			else
+			if(new_rator !== rator)
 			{
 				rator.parentNode.replaceChild(new_rator.cloneNode(true),rator);
-				return new_rator;
 			}
+			return false;
 		}
 
 		var term = this.abstraction_term(rator),
@@ -474,30 +468,20 @@ function ()
 				lambda = this,
 				substitution = function (E, v, M)
 				{
-					var sub_str = lambda.expression_to_string(E) + "[" + lambda.expression_to_string(v) + " -> " + lambda.expression_to_string(M) + "]";
 					if(lambda.var_p(E))
 					{
 						if(lambda.same_var_p(E,v))
 						{
-							console.log("  substitution rule a: " + sub_str);
-							var M = M.cloneNode(true);
-							console.log("  a) ==> " + lambda.expression_to_string(M));
-							return M;
+							return M.cloneNode(true);
 						}
 						else
 						{
-							console.log("  substitution rule b: " + sub_str);
-							var E = E.cloneNode(true);
-							console.log("  b) ==> " + lambda.expression_to_string(E));
-							return E;
+							return E.cloneNode(true);
 						}
 					}
 					else if(lambda.application_p(E))
 					{
-						console.log("  substitution rule d: " + sub_str);
-						var app = lambda.new_application(substitution(lambda.application_rator(E),v,M),substitution(lambda.application_rand(E),v,M));
-						console.log("  d) ==> " + lambda.expression_to_string(app));
-						return app;
+						return lambda.new_application(substitution(lambda.application_rator(E),v,M),substitution(lambda.application_rand(E),v,M));
 					}
 					else if(lambda.abstraction_p(E))
 					{
@@ -507,8 +491,6 @@ function ()
 
 						if(!(v.textContent in FV_e))
 						{
-							console.log("  substitution rule e: " + sub_str);
-							console.log("  e) ==> " + lambda.expression_to_string(E));
 							return E;
 						}
 						else if(! lambda.same_var_p(v,x))
@@ -517,10 +499,7 @@ function ()
 
 							if(!(x.textContent in FV_M))
 							{
-								console.log("  substitution rule f: " + sub_str);
-								var abx = lambda.new_abstraction(x,substitution(e,v,M));
-								console.log("  f) ==> " + lambda.expression_to_string(abx));
-								return abx;
+								return lambda.new_abstraction(x,substitution(e,v,M));
 							}
 							else
 							{
@@ -530,23 +509,15 @@ function ()
 									lambda.prime_rewrite_var(z);
 								}
 								// z != v ^ z not in FV(E E1)
-								console.log("  substitution rule g: " + sub_str);
-								console.log("    alpha ==< " + lambda.expression_to_string(E));
 								lambda.alpha_convert(E,x.cloneNode(true),z);
-								console.log("    alpha ==> " + lambda.expression_to_string(E));
-								var abx = lambda.new_abstraction(z,substitution(e,v,M));
-								console.log("  g) ==> " + lambda.expression_to_string(abx));
-								return abx;
+								return lambda.new_abstraction(z,substitution(e,v,M));
 							}
 						}
 					}
 				};
 
-			console.log("beta-reduction: " + lambda.expression_to_string(rator) + "[" + lambda.expression_to_string(term) + " -> " + lambda.expression_to_string(rand) + "]");
-			var sub = substitution(body,term,rand);
-			console.log("==> " + this.expression_to_string(sub));
-			redex.parentNode.replaceChild(sub,redex);
-			return sub;
+			redex.parentNode.replaceChild(substitution(body,term,rand),redex);
+			return true;
 	}
 
 	// apply lambda reduction rules to the redex
@@ -554,14 +525,15 @@ function ()
 	this.reduce =
 	function (redex,environment)
 	{
-		if(!redex) { return null; } // filter out nulls
+		if(redex)
+		{
+			var rator = this.application_rator(redex),
+					rand  = this.application_rand(redex);
 
-		var rator = this.application_rator(redex),
-				rand  = this.application_rand(redex);
-
-		// 1. before doing a substitution see if we can eta-reduce the rator
-		//    If we can return the reduced rator to the caller
-		return (this.eta_reduce(rator,environment) ||	this.beta_reduce(redex,environment));
+			// 1. before doing a substitution see if we can eta-reduce the rator
+			//    If we can return the reduced rator to the caller
+			this.eta_reduce(rator,environment) ||	this.beta_reduce(redex,environment);
+		}
 	}
 
 	// iterates over the element_tokens in the toplevel, reducing expressions
