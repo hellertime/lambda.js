@@ -249,33 +249,6 @@ function ()
 		}
 	}
 
-	this.substitute_term_in_expression =
-	function (term,expression,to)
-	{
-		var lambda = this;	
-		this.tree_map(expression, function (node)
-		{
-			if(lambda.var_p(node) && lambda.same_var_p(term,node))
-			{
-				if(node.parentNode)
-				{
-					node.parentNode.replaceChild(to.cloneNode(true),node);
-				}
-				else
-				{
-					while(node.childNodes.length)
-					{
-						node.removeChild(node.firstChild);
-					}
-					for(var c = 0; c < to.childNodes.length; c++)
-					{
-						node.appendChild(to.childNodes[c].cloneNode(true));
-					}
-				}
-			}
-		});
-	}
-
 	// test is variable x occurs free in expression
 	this.occurs_free =
 	function (expression,x)
@@ -503,12 +476,12 @@ function ()
 							}
 							else
 							{
-								var z = x.cloneNode(true);   // z == v
+								var z = x.cloneNode(true);   // z == x 
 								while(lambda.same_var_p(z,x) || (z.textContent in FV_e || z.textContent in FV_M))
 								{
 									lambda.prime_rewrite_var(z);
 								}
-								// z != v ^ z not in FV(E E1)
+								// z =/= v and z not in FV(e M)
 								lambda.alpha_convert(E,x.cloneNode(true),z);
 								return lambda.new_abstraction(z,substitution(e,v,M));
 							}
@@ -531,7 +504,6 @@ function ()
 					rand  = this.application_rand(redex);
 
 			// 1. before doing a substitution see if we can eta-reduce the rator
-			//    If we can return the reduced rator to the caller
 			this.eta_reduce(rator,environment) ||	this.beta_reduce(redex,environment);
 		}
 	}
@@ -544,7 +516,10 @@ function ()
 		while(token)
 		{
 			// find an element we can reduce on
-			while(token && !this.has_beta_redex_p(token,document))
+			var redex = null;
+			// normal_order_redex is just like has_beta_redex_p, but it returns
+			// the redex or null, instead of true/false
+			while(token && !(redex = this.normal_order_redex(token,document)))
 			{
 				token = this.next_element_token(token);
 			}
@@ -555,7 +530,7 @@ function ()
 				break;
 			}
 
-			this.reduce(this.normal_order_redex(token,document),document);
+			this.reduce(redex,document);
 
 			// if we lost our initial node, grab the first one
 			if(!token || !token.parentNode)

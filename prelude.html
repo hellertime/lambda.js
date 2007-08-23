@@ -3,7 +3,17 @@
 		<title>Lambda Calculator - Prelude</title>
 		<link rel="stylesheet" type="text/css" href="css/lambda.css" />
 		<link rel="stylesheet" type="text/css" href="css/bnf.css" />
+		<!-- used these references in building this document/environment -->
+		<link rel="reference" type="text/html" href="http://www.w3.org/TR/REC-html40/sgml/entities.htm" /> <!-- for all those great entities -->
 		<link rel="reference" type="text/html" href="http://www.cs.bgu.ac.il/~elhadad/advpro/course4.html" />
+		<link rel="reference" type="text/html" href="http://en.wikipedia.org/wiki/Lambda_calculus" />
+		<link rel="reference" type="text/html" href="http://ling.ucsd.edu/~barker/Lambda/" />
+		<link rel="reference" type="application/x-pdf" href="http://www.cs.uiowa.edu/~slonnegr/plf/Book/Chapter5.pdf" />
+		<link rel="reference" type="application/x-pdf" href="http://www.inf.fu-berlin.de/lehre/WS03/alpi/lambda.pdf" />
+		<link rel="reference" type="application/x-pdf" href="http://www.cs.iastate.edu/~lumpe/CS342/Solutions/SolutionPS4.pdf" />
+		<link rel="reference" type="text/html" href="http://www.itu.dk/people/sestoft/lamreduce/index.html" />
+		<link rel="reference" type="text/html" href="http://ellemose.dina.kvl.dk/~sestoft/lamreduce/lamframes.html" />
+		<link rel="reference" type="text/html" href="http://pages.cpsc.ucalgary.ca/~robin/class/417/Assignment_2.html" />
 	</head>
 	<body>
 		<h3>HTML-DOM &#955;-calculator</h3>
@@ -92,6 +102,35 @@
 			of another expression to the formal argument, and the formal argument
 			does not a free variable in E than you can simply reduce the expression
 			to E.
+		</pre>
+
+		<strong>&#955;-calculus substitution</strong> (<em>This damn concept took me forever to get right.</em>)
+		<pre>
+			Substitution in &#955;-calculus is a rather involved process.
+			This is entirely because free variable can get captured during substitution.
+
+			Substitution is done recursively, and has the following rules:
+
+			Given application (&#955;v.E M) we define E[M/v] <em>substitute M for v in E</em> as:
+
+			<strong>Variable Case</strong>
+			E &#8801; v &#8594; E[M/v] &#8594; M
+			    <em>E is equal to v, substitute M for E</em>
+			E &#8801; x &#8743; x &#8800; v &#8594; E[M/v] &#8594; x
+			    <em>E is a variable other than v, no-change to E</em>
+
+			<strong>Application Case</strong>
+			E &#8801; (E<sub>1</sub> E<sub>2</sub>) &#8594; E[M/v] &#8594; (E<sub>1</sub>[M/v] E<sub>2</sub>[M/v])
+			    <em>substitute recursively on E<sub>1</sub> and E<sub>2</sub></em>
+
+			<strong>Abstraction Case</strong>
+			E &#8801; &#955;x. E<sub>1</sub> &#8743; v &#8713; FV(E<sub>1</sub>) &#8594; E[M/v] &#8594; E
+			    <em>v is bound in E<sub>1</sub>, no-change to E</em>
+			E &#8801; &#955;x. E<sub>1</sub> &#8743; x &#8800; v &#8743; x &#8713; FV(M) &#8594; E[M/v] &#8594; &#955;x. E<sub>1</sub>[M/v]
+			    <em>x is a variable other than v and x is not bound in M, substitute recursively on E<sub>1</sub></em>
+			E &#8801; &#955;x. E<sub>1</sub> &#8743; x &#8800; v &#8743; x &#8712; FV(M) &#8743; z &#8800; x &#8743; z &#8713; FV(M E<sub>1</sub>) &#8594; E &#8596;<sub>&#945;</sub> &#955;z. (E<sub>1</sub>[z/x] &#8594; E<sub>1</sub>[M/v])
+			    <em>x is a variable other than v and x is not bound in M;
+			    z is a variable other than x and z is not bound in M and E<sub>1</sub>, alpha convert x to z in E<sub>1</sub> then substitute recursively in E<sub>1</sub></em>
 		</pre>
 
 		<h3>&#955;-calculus environment</h3>
