@@ -257,6 +257,32 @@
 			</dl>
 		</div>
 
+		<pre>
+			Remember, ZERO &#8801; FALSE.
+		</pre>
+		<strong>ZERO?</strong>
+		<div id="ZERO?" class="lambda-exp">
+			<dl>
+				<dt><var>n</var></dt>
+				<dd>
+					<ol>
+						<li>
+							<ol>
+								<li><var>n</var></li>
+								<li>
+									<dl>
+										<dt><var>x</var></dt>
+										<dd><var>FALSE</var></dd>
+									</dl>
+								</li>
+							</ol>
+						</li>
+						<li><var>TRUE</var></li>
+					</ol>
+				</dd>
+			</dl>
+		</div>
+
 		<h4>Church Numerals</h4>
 
 		<pre>
@@ -307,7 +333,7 @@
 		</pre>
 
 		<strong>ZERO</strong>
-		<em>It's &lt;FALSE&gt;, Surprise!</em>
+		<em>&#8801; FALSE, Surprise!</em>
 		<div id="ZERO" class="lambda-exp">
 			<var>FALSE</var>
 		</div>
@@ -429,6 +455,172 @@
 		</div>
 
 		<pre>
+			MULT could be defined independently of PLUS,
+			but I like how the dependency illustrates the concept
+			more clearly
+		</pre>
+
+		<strong>MULT</strong>
+		<div id="MULT" class="lambda-exp">
+			<dl>
+				<dt><var>m</var></dt>
+				<dd>
+					<dl>
+						<dt><var>n</var></dt>
+						<dd>
+							<ol>
+								<li>
+									<ol>
+										<li><var>m</var></li>
+										<li>
+											<ol>
+												<li><var>PLUS</var></li>
+												<li><var>n</var></li>
+											</ol>
+										</li>
+									</ol>
+								</li>
+								<li><var>ZERO</var></li>
+							</ol>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<pre>
+			PRED can also be defined in terms of PLUS and ZERO,
+			but I won't do that here
+		</pre>
+
+		<strong>PRED</strong>
+		<div id="PRED" class="lambda-exp">
+			<dl>
+				<dt><var>n</var></dt>
+				<dd>
+					<dl>
+						<dt><var>f</var></dt>
+						<dd>
+							<dl>
+								<dt><var>y</var></dt>
+								<dd>
+									<ol>
+										<li>
+											<ol>
+												<li>
+													<ol>
+														<li><var>n</var></li>
+														<li>
+															<dl>
+																<dt><var>g</var></dt>
+																<dd>
+																	<dl>
+																		<dt><var>h</var></dt>
+																		<dd>
+																			<ol>
+																				<li><var>h</var></li>
+																				<li>
+																					<ol>
+																						<li><var>g</var></li>
+																						<li><var>f</var></li>
+																					</ol>
+																				</li>
+																			</ol>
+																		</dd>
+																	</dl>
+																</dd>
+															</dl>
+														</li>
+													</ol>
+												</li>
+												<li>
+													<dl>
+														<dt><var>u</var></dt>
+														<dd><var>y</var></dd>
+													</dl>
+												</li>
+											</ol>
+										</li>
+										<li>
+											<dl>
+												<dt><var>u</var></dt>
+												<dd><var>u</var></dt>
+											</dl>
+										</li>
+									</ol>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<h4>List Operations</h4>
+
+		<strong>CONS</strong>
+		<div id="CONS" class="lambda-exp">
+			<dl>
+				<dt><var>f</var></dt>
+				<dd>
+					<dl>
+						<dt><var>s</var></dt>
+						<dd>
+							<dl>
+								<dt><var>b</var></dt>
+								<dd>
+									<ol>
+										<li>
+											<ol>
+												<li><var>b</var></li>
+												<li><var>f</var></li>
+											</ol>
+										</li>
+										<li><var>s</var></li>
+									</ol>
+								</dd>
+							</dl>
+						</dd>
+					</dl>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>HEAD</strong>
+		<div id="HEAD" class="lambda-exp">
+			<dl>
+				<dt><var>p</var></dt>
+				<dd>
+					<ol>
+						<li><var>p</var></li>
+						<li><var>TRUE</var></li>
+					</ol>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>TAIL</strong>
+		<div id="TAIL" class="lambda-exp">
+			<dl>
+				<dt><var>p</var></dt>
+				<dd>
+					<ol>
+						<li><var>p</var></li>
+						<li><var>FALSE</var></li>
+					</ol>
+				</dd>
+			</dl>
+		</div>
+
+		<strong>NIL</strong>
+		<div id="NIL" class="lambda-exp">
+			<dl>
+				<dt><var>x</var></dt>
+				<dd><var>TRUE</var></dd>
+			</dl>
+		</div>
+
+		<pre>
 			Since the environment is the DOM, it makes sense that applications
 			can use variables which exist elsewhere.
 		</pre>
@@ -465,7 +657,38 @@
 			</ol>
 		</div>
 
-		<strong>Testing variable expansion</strong><br />
+		<button onclick="prelude.compute_toplevel(document.getElementById('MULT-test'))">Reduce</button>
+		<div id="MULT-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li><var>MULT</var></li>
+						<li><var>TWO</var></li>
+					</ol>
+				</li>
+				<li><var>TWO</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('PRED-test'))">Reduce</button>
+		<div id="PRED-test" class="lambda-exp">
+			<ol>
+				<li>
+					<ol>
+						<li><var>PRED</var></li>
+						<li>
+							<ol>
+								<li><var>SUCC</var></li>
+								<li><var>ZERO</var></li>
+							</ol>
+						</li>
+					</ol>
+				</li>
+				<li><var>ONE</var></li>
+			</ol>
+		</div>
+
+		<strong>Testing Logic</strong><br />
 		<button onclick="prelude.compute_toplevel(document.getElementById('TRUE-test'))">Reduce</button>
 		<div id="TRUE-test" class="lambda-exp">
 			<ol>
@@ -551,6 +774,80 @@
 				<li><var>FALSE</var></li>
 			</ol>
 		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('ZERO?-test-1'))">Reduce</button>
+		<div id="ZERO?-test-1" class="lambda-exp">
+			<ol>
+				<li><var>ZERO?</var></li>
+				<li><var>ZERO</var></li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('ZERO?-test-2'))">Reduce</button>
+		<div id="ZERO?-test-2" class="lambda-exp">
+			<ol>
+				<li><var>ZERO?</var></li>
+				<li>
+					<ol>
+						<li><var>SUCC</var></li>
+						<li><var>ZERO</var></li>
+					</ol>
+				</li>
+			</ol>
+		</div>
+
+		<strong>A full LISP will have to wait until the entry system is better</strong><br />
+		<button onclick="prelude.compute_toplevel(document.getElementById('HEAD-CONS-test'))">Reduce</button>
+		<div id="HEAD-CONS-test" class="lambda-exp">
+			<ol>
+				<li><var>HEAD</var></li>
+				<li>
+					<ol>
+						<li>
+							<ol>
+								<li><var>CONS</var></li>
+								<li><var>TWO</var></li>
+							</ol>
+						</li>
+						<li><var>NIL</var></li>
+					</ol>
+				</li>
+			</ol>
+		</div>
+
+		<button onclick="prelude.compute_toplevel(document.getElementById('TAIL-CONS-test'))">Reduce</button>
+		<div id="TAIL-CONS-test" class="lambda-exp">
+			<ol>
+				<li><var>HEAD</var></li>
+				<li>
+					<ol>
+						<li><var>TAIL</var></li>
+						<li>
+							<ol>
+								<li>
+									<ol>
+										<li><var>CONS</var></li>
+										<li><var>ONE</var></li>
+									</ol>
+								</li>
+								<li>
+									<ol>
+										<li>
+											<ol>
+												<li><var>CONS</var></li>
+												<li><var>TWO</var></li>
+											</ol>
+										</li>
+										<li><var>NIL</var></li>
+									</ol>
+								</li>
+							</ol>
+						</li>
+					</ol>
+				</li>
+			</ol>
+		</div>
+
 
 		<strong>Here is a test of the reduction algorithm</strong><br />
 		<button onclick="prelude.compute_toplevel(document.getElementById('lambda-calc')); return false">Reduce</button>
