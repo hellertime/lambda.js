@@ -253,10 +253,7 @@ function ()
 	this.occurs_free =
 	function (expression,x)
 	{
-		if(!this.var_p(x))
-		{
-			return false;
-		}
+		if(!this.var_p(x)) { return false; }
 
 		if(this.var_p(expression))
 		{
@@ -477,7 +474,7 @@ function ()
 							else
 							{
 								var z = x.cloneNode(true);   // z == x 
-								while(lambda.same_var_p(z,x) || (z.textContent in FV_e || z.textContent in FV_M))
+								while(lambda.same_var_p(z,v) || lambda.same_var_p(z,x) || (z.textContent in FV_e || z.textContent in FV_M))
 								{
 									lambda.prime_rewrite_var(z);
 								}
@@ -525,10 +522,7 @@ function ()
 			}
 
 			// search failed, we're done
-			if(!token)
-			{
-				break;
-			}
+			if(!token) { break; }
 
 			this.reduce(redex,document);
 
