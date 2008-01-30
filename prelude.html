@@ -24,13 +24,25 @@
 			This is not a very effecient or even practical means of implementation.
 			However it does allow for a nice display of the expressions, and even
 			some style.
+
+			This page consists of itself, two CSS files to define some style and a single
+			Javascript file to implement all the &#955;-calculus machinery.
 		</pre>
 
 		<p>
 			<em>A STRING is any valid Javascript String</em>
 		</p>
+		<p>
+			<a name="quick-nav"><strong>Quick Navigation</strong></a><br />
+			<a href="#lambda-calculus-grammar">&#955;-calculus grammar</a> |
+			<a href="#html-dom-grammar">&#955;-calculus HTML-DOM grammar</a> |
+			<a href="#lambda-calculus-axioms">&#955;-calculus axioms</a> |
+			<a href="#lambda-calculus-substitution">&#955;-calculus substitution</a> |
+			<a href="#lambda-calculus-environment">&#955;-calculus environment</a> |
+			<a href="#lambda-calculus-expressions">&#955;-calculus expressions</a>
+		</p>
 
-		<strong>&#955;-calculus grammar</strong>
+		<a name="lambda-calculus-grammar"><strong>&#955;-calculus grammar</strong></a>
 		<span class="bnf-notation">
 				<dl>
 					<dt>&lt;expression&gt;</dt>
@@ -52,7 +64,7 @@
 				</dl>
 		</span>
 
-		<strong>&#955;-calculus HTML-DOM grammar</strong>
+		<a name="html-dom-grammar"><strong>&#955;-calculus HTML-DOM grammar</strong></a><a href="#quick-nav">[Quick Nav]</a>
 		<span class="bnf-notation">
 				<dl>
 					<dt>&lt;expression&gt;</dt>
@@ -74,7 +86,7 @@
 				</dl>
 		</span>
 
-		<strong>&#955;-calculus axioms</strong>
+		<a name="lambda-calculus-axioms"><strong>&#955;-calculus axioms</strong></a><a href="#quick-nav">[Quick Nav]</a>
 		<pre>
 			Evaluation in &#955;-calculus is defined by three simple reduction rules:
 
@@ -104,7 +116,7 @@
 			to E.
 		</pre>
 
-		<strong>&#955;-calculus substitution</strong> (<em>This damn concept took me forever to get right.</em>)
+		<a name="lambda-calculus-substitution"><strong>&#955;-calculus substitution</strong> (<em>This damn concept took me forever to get right.</em>)</a><a href="#quick-nav">[Quick Nav]</a>
 		<pre>
 			Substitution in &#955;-calculus is a rather involved process.
 			This is entirely because free variable can get captured during substitution.
@@ -133,7 +145,7 @@
 			    z is a variable other than x and z is not bound in M and E<sub>1</sub>, alpha convert x to z in E<sub>1</sub> then substitute recursively in E<sub>1</sub></em>
 		</pre>
 
-		<h3>&#955;-calculus environment</h3>
+		<h3><a name="lambda-calculus-environment">&#955;-calculus environment</a><a href="#quick-nav">[Quick Nav]</a></h3>
 
 		<strong>TRUE</strong>
 		<div id="TRUE" class="lambda-exp">
@@ -625,7 +637,7 @@
 			can use variables which exist elsewhere.
 		</pre>
 
-		<h3>&#955;-calculus expression</h3>
+		<h3><a name="lambda-calculus-expressions">&#955;-calculus expression</a><a href="#quick-nav">[Quick Nav]</a></h3>
 
 		<strong>Sanity Check our Number System</strong><br />
 		<button onclick="prelude.compute_toplevel(document.getElementById('SUCC-ZERO-test'))">Reduce</button>
